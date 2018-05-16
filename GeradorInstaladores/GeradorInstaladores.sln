@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeradorInstaladores.Web", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeradorInstaladores.Infra", "GeradorInstaladores.Infra\GeradorInstaladores.Infra.csproj", "{0183F8A4-CBFF-4FA2-B0B0-22447E431353}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeradorInstaladores.Testes", "GeradorInstaladores.Testes\GeradorInstaladores.Testes.csproj", "{1EC355CE-F7B4-4168-A1C7-6907A3D14DB5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{0183F8A4-CBFF-4FA2-B0B0-22447E431353}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0183F8A4-CBFF-4FA2-B0B0-22447E431353}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0183F8A4-CBFF-4FA2-B0B0-22447E431353}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1EC355CE-F7B4-4168-A1C7-6907A3D14DB5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1EC355CE-F7B4-4168-A1C7-6907A3D14DB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1EC355CE-F7B4-4168-A1C7-6907A3D14DB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1EC355CE-F7B4-4168-A1C7-6907A3D14DB5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

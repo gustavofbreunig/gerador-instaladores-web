@@ -11,6 +11,10 @@ namespace GeradorInstaladores.Infra
     /// </summary>
     public class CriadorInstalador
     {
+        private string _pastaDrivers { get; set; }
+        private string _pastaINNO { get; set; }
+        private Instalador _instalador { get; set; }
+
         /// <summary>
         /// Arquivo (.bat) com os instaladores impressoras versão x86
         /// </summary>
@@ -58,9 +62,15 @@ namespace GeradorInstaladores.Infra
         /// </summary>
         public event AtualizaStatusHandler OnConclusao;
 
-        public CriadorInstalador(Instalador instalador, string pastaInstalador, string pastaINNO)
+        public CriadorInstalador(Instalador instalador, string pastaDrivers, string pastaINNO)
         {
+            this._instalador = instalador;
+            this._pastaINNO = pastaINNO;
+            this._pastaDrivers = pastaDrivers;
 
+            //cria nomes para os arquivos a serem criados, com um guid para serem únicos
+            string sufixoArquivos = Guid.NewGuid().ToString().Substring(0, 4);
+            _instaladorBATx86 = "instalador_x86_" + sufixoArquivos + ".bat";
         }
 
         public void CriaInstaladorINNO()
