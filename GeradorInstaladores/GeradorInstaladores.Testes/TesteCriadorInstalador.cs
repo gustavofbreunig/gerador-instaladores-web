@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using GeradorInstaladores.Infra;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace GeradorInstaladores.Testes
 {
@@ -26,7 +27,7 @@ namespace GeradorInstaladores.Testes
             _instalador = new Instalador()
             {
                 Id = 1,
-                Nome = "teste",
+                Nome = "nóme dó cliénte",
                 Status = (int)StatusCompilacao.NaoIniciado,
                 Equipamentos = new List<Equipamento>()
             };
@@ -36,6 +37,14 @@ namespace GeradorInstaladores.Testes
                 Id = 1,
                 IP = "192.168.10.1",
                 Nome = "Impressora 01",
+                ModeloEquipamento = _modelo
+            });
+
+            _instalador.Equipamentos.Add(new Equipamento()
+            {
+                Id = 2,
+                IP = "192.168.10.2",
+                Nome = "Impressora 02",
                 ModeloEquipamento = _modelo
             });
         }
@@ -49,8 +58,17 @@ namespace GeradorInstaladores.Testes
                 @"C:\Program Files (x86)\Inno Setup 5"
                 );
 
+            criador.OnErro += Criador_OnErro;
+
             criador.CriaInstaladorINNO();
 
+        }
+
+        private void Criador_OnErro(object sender, ProgressoEventArgs e)
+        {
+            //grava erro no log do BD
+
+            throw new Exception(e.Mensagem);
         }
     }
 }
