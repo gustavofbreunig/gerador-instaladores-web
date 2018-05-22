@@ -116,13 +116,13 @@ namespace GeradorInstaladores.Infra
         public string NomeModelo { get; set; }
         
         /// <summary>
-        /// Pasta onde está o driver X86 do modelo, a partir do diretório do assembly.
+        /// Pasta onde está o driver X86.
         /// </summary>
         [Required]
         public string PastaDriverX86 { get; set; }
 
         /// <summary>
-        /// Pasta onde está o driver X64 do modelo, a partir do diretório do assembly.
+        /// Pasta onde está o driver X64.
         /// </summary>
         [Required]
         public string PastaDriverX64 { get; set; }
@@ -134,7 +134,7 @@ namespace GeradorInstaladores.Infra
         public string ArquivoINF { get; set; }
 
         /// <summary>
-        /// Nome do driver, de dentro do arquivo .inf
+        /// Nome do driver, encontre dentro do arquivo .inf, ex: RICOH Aficio MP 201 PCL 5e
         /// </summary>
         [Required]
         public string NomeDriver { get; set; }

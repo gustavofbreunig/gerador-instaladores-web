@@ -30,6 +30,140 @@ namespace GeradorInstaladores.Infra
             }
         }
 
+        private enum ArquiteturaDoBatFile { x86, x64 };
+
+        private void CriaBAT(ArquiteturaDoBatFile arq)
+        {
+            try
+            {
+                string nome_arquivo_bat;
+                if (arq == ArquiteturaDoBatFile.x86)
+                {
+                    nome_arquivo_bat = Path.Combine(_pastaDrivers, _instaladorBATx86);
+                }
+                else if (arq == ArquiteturaDoBatFile.x64)
+                {
+                    nome_arquivo_bat = Path.Combine(_pastaDrivers, _instaladorBATx64);
+                }
+                else
+                {
+                    throw new Exception("Arquitetura incorreta/não implementada");
+                }
+
+                using (FileStream fs = File.Create(nome_arquivo_bat))
+                {
+                    StringBuilder sb = new StringBuilder();
+
+                    //instalação dos drivers, agrupado por modelo
+                    var modelos =
+                        _instalador.Equipamentos
+                        .GroupBy(p => p.ModeloEquipamento)
+                        .Select(p => p.Key)
+                        .ToArray();
+
+                    sb.AppendLine("@echo off"); //tira a exibição do caminho durante a execução do batch
+
+                    sb.AppendLine();
+                    sb.AppendLine("REM DRIVERS");
+
+                    foreach (var modelo in modelos)
+                    {
+                        sb.AppendLine("echo Instalando o driver " + modelo.NomeDriver);
+
+                        string local_do_inf;
+                        if (arq == ArquiteturaDoBatFile.x86)
+                        {
+                            local_do_inf = Path.Combine(modelo.PastaDriverX86, modelo.ArquivoINF);
+                        }
+                        else if (arq == ArquiteturaDoBatFile.x64)
+                        {
+                            local_do_inf = Path.Combine(modelo.PastaDriverX64, modelo.ArquivoINF);
+                        }
+                        else
+                        {
+                            throw new Exception("Arquitetura incorreta/não implementada");
+                        }
+
+                        //https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/rundll32-printui
+                        sb.Append("rundll32 printui.dll,PrintUIEntry");//Automates many printer configuration tasks. printui.dll is the executable file that contains the functions used by the printer configuration dialog boxes
+                        sb.Append(" /ia"); //Installs a printer driver by using an .inf file.
+                        sb.Append(" /m " + "\"" + modelo.NomeDriver + "\""); //Specifies the driver model name. (This value can be specified in the .inf file.)
+                        sb.Append(" /f " + "\"" + local_do_inf + "\""); //Species the Universal Naming Convention (UNC) path and name of the .inf file name or the output file name, depending on the task that you are performing.
+                        sb.AppendLine();
+                    }
+
+                    sb.AppendLine();
+                    sb.AppendLine();
+                    sb.AppendLine("REM PORTAS DE IMPRESSAO");
+
+                    //instalação das portas
+                    foreach (var equipamento in _instalador.Equipamentos)
+                    {
+                        sb.AppendLine("echo Criando porta de impressao para " + equipamento.Nome + "...");
+
+                        //https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/prnport
+                        sb.Append(@"cscript %WINDIR%\System32\Printing_Admin_Scripts\pt-BR\prnport.vbs");
+                        sb.Append(" -a"); //creates a standard TCP/IP printer port.
+                        sb.Append(" -r IP_" + equipamento.IP); //Specifies the port to which the printer is connected.
+                        sb.Append(" -h"); //Specifies (by IP address) the printer for which you want to configure the port.
+                        sb.Append(" " + equipamento.IP);
+                        sb.Append(" -o raw"); //Specifies which protocol the port uses: TCP raw or TCP lpr.
+                        sb.Append(" -n 9100"); //If you use TCP raw, you can optionally specify the port number by using the -n parameter. The default port number is 9100.
+                        sb.AppendLine();
+                    }
+
+                    //instalação dos equipamentos
+                    sb.AppendLine();
+                    sb.AppendLine();
+                    sb.AppendLine("REM IMPRESSORAS");
+
+                    foreach (var equipamento in _instalador.Equipamentos)
+                    {
+                        string local_do_inf;
+                        if (arq == ArquiteturaDoBatFile.x86)
+                        {
+                            local_do_inf = Path.Combine(equipamento.ModeloEquipamento.PastaDriverX86, equipamento.ModeloEquipamento.ArquivoINF);
+                        }
+                        else if (arq == ArquiteturaDoBatFile.x64)
+                        {
+                            local_do_inf = Path.Combine(equipamento.ModeloEquipamento.PastaDriverX64, equipamento.ModeloEquipamento.ArquivoINF);
+                        }
+                        else
+                        {
+                            throw new Exception("Arquitetura incorreta/não implementada");
+                        }
+
+                        sb.AppendLine("echo Adicionando impressora " + equipamento.Nome + "...");
+
+                        sb.Append("rundll32 printui.dll,PrintUIEntry");
+                        sb.Append(" /if"); //Installs a printer by using an .inf file.
+                        sb.Append(" /b " + "\"" + equipamento.Nome + "\""); //Specifies the base printer name.
+                        sb.Append(" /f " + "\"" + local_do_inf + "\""); //Species the Universal Naming Convention (UNC) path and name of the .inf file name or the output file name, depending on the task that you are performing.
+                        sb.Append(" /r " + "\"" + "IP_" + equipamento.IP + "\""); //Specifies the port to which the printer is connected.
+                        sb.Append(" /m " + "\"" + equipamento.ModeloEquipamento.NomeDriver + "\""); //Specifies the driver model name. (This value can be specified in the .inf file.)
+                        sb.AppendLine();
+                    }
+
+                    sb.AppendLine();
+                    sb.AppendLine("pause");
+
+                    //default encoding para ser suportado pelo INNO, unicode não suportas
+                    byte[] textoBytes = Encoding.Default.GetBytes(sb.ToString());
+                    fs.Write(textoBytes, 0, textoBytes.Length);
+                }
+            }
+            catch (Exception e)
+            {
+                if (OnErro != null)
+                {
+                    OnErro(
+                        this,
+                        new ProgressoEventArgs(_instalador.Id, e.Message + "\r\n" + e.StackTrace)
+                        );
+                }
+            }
+        }
+
         /// <summary>
         /// Arquivo (.bat) com os instaladores impressoras versão x64
         /// </summary>
@@ -59,13 +193,20 @@ namespace GeradorInstaladores.Infra
                 string caminho = Path.Combine(_pastaDrivers, _resumoTXT);
                 using (FileStream fs = File.Create(caminho))
                 {
-                    string texto = _instalador.Nome + "\r\n" + "\r\n" + "Lista de equipamentos:" + "\r\n" + "\r\n";
+                    StringBuilder sb = new StringBuilder();
+
+                    sb.AppendLine(_instalador.Nome);
+                    sb.AppendLine();
+                    sb.AppendLine("Lista de equipamentos:");
+                    sb.AppendLine();
 
                     foreach (var equipamento in _instalador.Equipamentos)
                     {
-                        texto += equipamento.IP + " - " + equipamento.ModeloEquipamento.NomeModelo + " - " + equipamento.Nome + "\r\n";
+                        sb.AppendLine(equipamento.IP + " - " + equipamento.ModeloEquipamento.NomeModelo + " - " + equipamento.Nome);
                     }
-                    byte[] textoBytes = Encoding.Default.GetBytes(texto);
+
+                    //default encoding para ser suportado pelo INNO, unicode não suportas
+                    byte[] textoBytes = Encoding.Default.GetBytes(sb.ToString());
                     fs.Write(textoBytes, 0, textoBytes.Length);
                 }
             }
@@ -152,7 +293,26 @@ namespace GeradorInstaladores.Infra
 
         public void CriaInstaladorINNO()
         {
+            if (OnMensagemProgresso != null)
+            {
+                OnMensagemProgresso(
+                    this,
+                    new ProgressoEventArgs(_instalador.Id, "Criando resumo (.txt)...")
+                    );
+            }
+
             CriaResumoTXT();
+
+            if (OnMensagemProgresso != null)
+            {
+                OnMensagemProgresso(
+                    this,
+                    new ProgressoEventArgs(_instalador.Id, "Criando batchs (.bat)...")
+                    );
+            }
+
+            CriaBAT(ArquiteturaDoBatFile.x86);
+            CriaBAT(ArquiteturaDoBatFile.x64);
 
         }
     }
