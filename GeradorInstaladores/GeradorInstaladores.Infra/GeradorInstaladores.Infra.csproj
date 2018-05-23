@@ -67,6 +67,7 @@
     <Compile Include="GeradorInstaladoresContext.cs" />
     <Compile Include="JobCriaInstalador.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SeedsNoBD.cs" />
     <Compile Include="StatusCompilacao.cs" />
   </ItemGroup>
   <ItemGroup>
