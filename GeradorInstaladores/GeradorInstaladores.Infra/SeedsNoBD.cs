@@ -54,11 +54,7 @@ namespace GeradorInstaladores.Infra
                     {
                         PastaDrivers = @"D:\temp\instaladorImpressoras",
                         PastaINNO = @"C:\Program Files (x86)\Inno Setup 5",
-                        AppName = @"AppName",
-                        AppPublisher = @"AppPublisher",
-                        AppPublisherURL = @"http://google.com",
-                        AppSupportURL = @"http://google.com",
-                        AppUpdatesURL = @"http://google.com"
+                        AppName = @"AppName"
                     });
                 }
 

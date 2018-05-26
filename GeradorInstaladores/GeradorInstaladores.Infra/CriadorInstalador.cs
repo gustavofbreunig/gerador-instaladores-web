@@ -15,6 +15,7 @@ namespace GeradorInstaladores.Infra
     {
         private string _pastaDrivers { get; set; }
         private string _pastaINNO { get; set; }
+        private string _AppName { get; set; }
         private Instalador _instalador { get; set; }
 
         private string sufixoArquivos = Guid.NewGuid().ToString().Substring(0, 4);
@@ -214,7 +215,7 @@ namespace GeradorInstaladores.Infra
             {
                 if (OnErro != null)
                 {
-                    OnErro(                        
+                    OnErro(
                         this,
                         new ProgressoEventArgs(_instalador.Id, e.Message + "\r\n" + e.StackTrace)
                         );
@@ -230,6 +231,77 @@ namespace GeradorInstaladores.Infra
             get
             {
                 return "script_instalador_" + sufixoArquivos + ".iss";
+            }
+        }
+
+        /// <summary>
+        /// Cria o arquivo .iss com os comandos para gerar o instalador
+        /// </summary>
+        private void CriaArquivoISS()
+        {
+            try
+            {
+                string caminho = Path.Combine(_pastaDrivers, _instaladorINNO);
+                using (FileStream fs = File.Create(caminho))
+                {
+                    StringBuilder sb = new StringBuilder();
+
+                    sb.AppendLine("[Setup]");
+                    sb.AppendFormat("AppName={0}\r\n", _AppName);
+                    sb.AppendLine("AppVersion=1.0");
+                    sb.AppendLine("CreateAppDir=no");
+                    //sb.AppendFormat("OutputBaseFilename={0}\r\n", _arquivoSaida);
+                    sb.AppendFormat("InfoBeforeFile={0}\r\n", _resumoTXT);
+                    sb.AppendLine("Compression=lzma2");
+                    sb.AppendLine("SolidCompression=yes");
+                    sb.AppendLine("Uninstallable=no");
+
+                    sb.AppendLine();
+
+                    sb.AppendLine("[Languages]");
+                    sb.AppendLine("Name: \"brazilianportuguese\"; MessagesFile: \"compiler:Languages\\BrazilianPortuguese.isl\"");
+
+                    sb.AppendLine();
+                    sb.AppendLine("[Messages]");
+                    sb.AppendLine("BeveledLabel=AAB3BF192316348537C09A2CEC92E0F94C8FF6F313D33B961AA2DF345EB43296");
+
+                    sb.AppendLine();
+                    sb.AppendLine("[Files]");
+
+                    sb.AppendFormat("Source: \"{0}\"; DestDir: {{tmp}}; Flags: deleteafterinstall\r\n", _instaladorBATx64);
+                    sb.AppendFormat("Source: \"{0}\"; DestDir: {{tmp}}; Flags: deleteafterinstall\r\n", _instaladorBATx86);
+
+                    //drivers 
+                    var modelos =
+                        _instalador.Equipamentos
+                        .GroupBy(p => p.ModeloEquipamento)
+                        .Select(p => p.Key)
+                        .ToArray();
+
+                    foreach (var modelo in modelos)
+                    {
+                        sb.AppendFormat("Source: \"{0}\\*\"; DestDir: {{tmp}}\\{0}; Flags: recursesubdirs createallsubdirs deleteafterinstall\r\n", modelo.PastaDriverX64);
+                        sb.AppendFormat("Source: \"{0}\\*\"; DestDir: {{tmp}}\\{0}; Flags: recursesubdirs createallsubdirs deleteafterinstall\r\n", modelo.PastaDriverX86);
+                    }
+
+                    sb.AppendLine("[Run]");
+                    sb.AppendFormat("Filename: {{tmp}}\\{0}; Check: not IsWin64 \r\n", _instaladorBATx64);
+                    sb.AppendFormat("Filename: {{tmp}}\\{0}; Check: IsWin64 \r\n", _instaladorBATx86);
+
+                    //default encoding para ser suportado pelo INNO, unicode não suportas
+                    byte[] textoBytes = Encoding.Default.GetBytes(sb.ToString());
+                    fs.Write(textoBytes, 0, textoBytes.Length);
+                }
+            }
+            catch (Exception e)
+            {
+                if (OnErro != null)
+                {
+                    OnErro(
+                        this,
+                        new ProgressoEventArgs(_instalador.Id, e.Message + "\r\n" + e.StackTrace)
+                        );
+                }
             }
         }
 
@@ -284,11 +356,16 @@ namespace GeradorInstaladores.Infra
         /// </summary>
         public event AtualizaStatusHandler OnConclusao;
 
-        public CriadorInstalador(Instalador instalador, string pastaDrivers, string pastaINNO)
+        public CriadorInstalador(
+            Instalador instalador,
+            string pastaDrivers,
+            string pastaINNO,
+            string AppName)
         {
             _instalador = instalador;
             _pastaINNO = pastaINNO;
             _pastaDrivers = pastaDrivers;
+            _AppName = AppName;
         }
 
         public void CriaInstaladorINNO()
@@ -314,6 +391,54 @@ namespace GeradorInstaladores.Infra
             CriaBAT(ArquiteturaDoBatFile.x86);
             CriaBAT(ArquiteturaDoBatFile.x64);
 
+            if (OnMensagemProgresso != null)
+            {
+                OnMensagemProgresso(
+                    this,
+                    new ProgressoEventArgs(_instalador.Id, "Criando inno installer (.iss)...")
+                    );
+            }
+
+            CriaArquivoISS();
+
+            if (OnMensagemProgresso != null)
+            {
+                OnMensagemProgresso(
+                    this,
+                    new ProgressoEventArgs(_instalador.Id, "Compilando...")
+                    );
+            }
+
+            CompilaInstaladorINNO();            
+        }
+
+
+        private void CompilaInstaladorINNO()
+        {
+            System.Diagnostics.Process pProcess = new System.Diagnostics.Process();
+            pProcess.StartInfo.FileName = Path.Combine(_pastaINNO, "ISCC.exe");
+            pProcess.StartInfo.Arguments = _instaladorINNO + " /F" + "\"" + _arquivoSaida.Replace(".exe", "") /*o .exe é colocado pelo inno*/ + "\"";
+            pProcess.StartInfo.UseShellExecute = false;
+            pProcess.StartInfo.RedirectStandardOutput = true;
+            pProcess.StartInfo.RedirectStandardError = true;
+            pProcess.StartInfo.WorkingDirectory = _pastaDrivers;
+            pProcess.Start();
+            string strOutput = pProcess.StandardOutput.ReadToEnd();
+            string strErrorOutput = pProcess.StandardError.ReadToEnd();
+
+            pProcess.WaitForExit();
+
+            //informa mensagens de saída do compilador INNO
+            if (OnMensagemProgresso != null)
+            {
+                OnMensagemProgresso(this, new ProgressoEventArgs(_instalador.Id, strOutput));
+            }
+
+            //se tiver erro, manda para a saída de erro
+            if (!System.String.IsNullOrWhiteSpace(strErrorOutput) && OnErro != null)
+            {
+                OnErro(this, new ProgressoEventArgs(_instalador.Id, "Erro compilando no INNO Setup: \r\n" + strErrorOutput));
+            }
         }
     }
 

@@ -75,20 +75,26 @@ namespace GeradorInstaladores.Testes
             CriadorInstalador criador =
                 new CriadorInstalador(_instalador,
                 @"D:\temp\instaladorImpressoras",
-                @"C:\Program Files (x86)\Inno Setup 5"
+                @"C:\Program Files (x86)\Inno Setup 5",
+                @"Teste"
                 );
 
             criador.OnErro += Criador_OnErro;
+            criador.OnMensagemProgresso += Criador_OnMensagemProgresso;
 
             criador.CriaInstaladorINNO();
 
         }
 
+        private void Criador_OnMensagemProgresso(object sender, ProgressoEventArgs e)
+        {
+            Debug.WriteLine(e.Mensagem);
+        }
+
         private void Criador_OnErro(object sender, ProgressoEventArgs e)
         {
-            //grava erro no log do BD
-
-            throw new Exception(e.Mensagem);
+            Debug.WriteLine("ERRO:");
+            Debug.WriteLine(e.Mensagem);
         }
     }
 }

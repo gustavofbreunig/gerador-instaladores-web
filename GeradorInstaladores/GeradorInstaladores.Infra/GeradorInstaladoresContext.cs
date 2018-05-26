@@ -52,34 +52,6 @@ namespace GeradorInstaladores.Infra
         /// </summary>
         [Required]
         public string AppName { get; set; }
-
-        /// <summary>
-        /// Configuração AppPublisher do INNO.
-        /// http://www.jrsoftware.org/ishelp/index.php?topic=setup_apppublisher
-        /// </summary>
-        [Required]
-        public string AppPublisher { get; set; }
-
-        /// <summary>
-        /// Configuração AppPublisherURL do INNO.
-        /// http://www.jrsoftware.org/ishelp/index.php?topic=setup_apppublisherurl
-        /// </summary>
-        [Required]
-        public string AppPublisherURL { get; set; }
-
-        /// <summary>
-        /// Configuração AppSupportURL do INNO.
-        /// http://www.jrsoftware.org/ishelp/index.php?topic=setup_appsupporturl
-        /// </summary>
-        [Required]
-        public string AppSupportURL { get; set; }
-
-        /// <summary>
-        /// Configuração AppUpdatesURL do INNO.
-        /// http://www.jrsoftware.org/ishelp/topic_setup_appupdatesurl.htm
-        /// </summary>
-        [Required]
-        public string AppUpdatesURL { get; set; }
     }
 
     [Table("Instaladores")]
