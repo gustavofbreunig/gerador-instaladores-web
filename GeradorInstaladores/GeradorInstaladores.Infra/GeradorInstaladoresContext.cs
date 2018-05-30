@@ -64,7 +64,7 @@ namespace GeradorInstaladores.Infra
         public string Nome { get; set; }
 
         /// <summary>
-        /// Nome do arquivo instalador
+        /// Nome do arquivo instalador (.exe), depois de compilado.
         /// </summary>
         public string ArquivoInstalador { get; set; }
 
@@ -78,11 +78,6 @@ namespace GeradorInstaladores.Infra
         /// Mensagens de progresso da criação do instalador.
         /// </summary>
         public string MensagensProgresso { get; set; }
-
-        /// <summary>
-        /// Erro no processo.
-        /// </summary>
-        public string Erro { get; set; }
 
         public virtual ICollection<Equipamento> Equipamentos { get; set; }
     }

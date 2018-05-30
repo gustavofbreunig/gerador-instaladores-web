@@ -409,35 +409,54 @@ namespace GeradorInstaladores.Infra
                     );
             }
 
-            CompilaInstaladorINNO();            
-        }
+            CompilaInstaladorINNO();
 
+            if (OnConclusao != null)
+            {
+                OnConclusao(this,
+                    new ProgressoEventArgs(_instalador.Id, _arquivoSaida)
+                    );
+            }
+        }
 
         private void CompilaInstaladorINNO()
         {
-            System.Diagnostics.Process pProcess = new System.Diagnostics.Process();
-            pProcess.StartInfo.FileName = Path.Combine(_pastaINNO, "ISCC.exe");
-            pProcess.StartInfo.Arguments = _instaladorINNO + " /F" + "\"" + _arquivoSaida.Replace(".exe", "") /*o .exe é colocado pelo inno*/ + "\"";
-            pProcess.StartInfo.UseShellExecute = false;
-            pProcess.StartInfo.RedirectStandardOutput = true;
-            pProcess.StartInfo.RedirectStandardError = true;
-            pProcess.StartInfo.WorkingDirectory = _pastaDrivers;
-            pProcess.Start();
-            string strOutput = pProcess.StandardOutput.ReadToEnd();
-            string strErrorOutput = pProcess.StandardError.ReadToEnd();
-
-            pProcess.WaitForExit();
-
-            //informa mensagens de saída do compilador INNO
-            if (OnMensagemProgresso != null)
+            try
             {
-                OnMensagemProgresso(this, new ProgressoEventArgs(_instalador.Id, strOutput));
+                System.Diagnostics.Process pProcess = new System.Diagnostics.Process();
+                pProcess.StartInfo.FileName = Path.Combine(_pastaINNO, "ISCC.exe");
+                pProcess.StartInfo.Arguments = _instaladorINNO + " /F" + "\"" + _arquivoSaida.Replace(".exe", "") /*o .exe é colocado pelo inno*/ + "\"";
+                pProcess.StartInfo.UseShellExecute = false;
+                pProcess.StartInfo.RedirectStandardOutput = true;
+                pProcess.StartInfo.RedirectStandardError = true;
+                pProcess.StartInfo.WorkingDirectory = _pastaDrivers;
+                pProcess.Start();
+                string strOutput = pProcess.StandardOutput.ReadToEnd();
+                string strErrorOutput = pProcess.StandardError.ReadToEnd();
+
+                pProcess.WaitForExit();
+
+                //informa mensagens de saída do compilador INNO
+                if (OnMensagemProgresso != null)
+                {
+                    OnMensagemProgresso(this, new ProgressoEventArgs(_instalador.Id, strOutput));
+                }
+
+                //se tiver erro, manda para a saída de erro
+                if (!System.String.IsNullOrWhiteSpace(strErrorOutput) && OnErro != null)
+                {
+                    OnErro(this, new ProgressoEventArgs(_instalador.Id, "Erro compilando no INNO Setup: \r\n" + strErrorOutput));
+                }
             }
-
-            //se tiver erro, manda para a saída de erro
-            if (!System.String.IsNullOrWhiteSpace(strErrorOutput) && OnErro != null)
+            catch (Exception e)
             {
-                OnErro(this, new ProgressoEventArgs(_instalador.Id, "Erro compilando no INNO Setup: \r\n" + strErrorOutput));
+                if (OnErro != null)
+                {
+                    OnErro(
+                        this,
+                        new ProgressoEventArgs(_instalador.Id, e.Message + "\r\n" + e.StackTrace)
+                        );
+                }
             }
         }
     }

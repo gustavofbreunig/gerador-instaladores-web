@@ -78,9 +78,10 @@ namespace GeradorInstaladores.Testes
                 @"C:\Program Files (x86)\Inno Setup 5",
                 @"Teste"
                 );
-
-            criador.OnErro += Criador_OnErro;
+            
             criador.OnMensagemProgresso += Criador_OnMensagemProgresso;
+            criador.OnErro += Criador_OnErro;
+            criador.OnConclusao += Criador_OnConclusao;
 
             criador.CriaInstaladorINNO();
 
@@ -88,11 +89,20 @@ namespace GeradorInstaladores.Testes
 
         private void Criador_OnMensagemProgresso(object sender, ProgressoEventArgs e)
         {
+            //salva mensagem no processo do BD
+            Debug.WriteLine(e.Mensagem);
+        }
+
+        private void Criador_OnConclusao(object sender, ProgressoEventArgs e)
+        {
+            //salva o nome do arquivo no campo do BD para download
+            Debug.WriteLine("Concluido:");
             Debug.WriteLine(e.Mensagem);
         }
 
         private void Criador_OnErro(object sender, ProgressoEventArgs e)
         {
+            //salva mensagem no BD e muda o status pra erro
             Debug.WriteLine("ERRO:");
             Debug.WriteLine(e.Mensagem);
         }
