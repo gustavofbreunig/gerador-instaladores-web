@@ -24,7 +24,7 @@ namespace GeradorInstaladores
             ITrigger trigger = TriggerBuilder.Create()
                 .WithIdentity("myTrigger", "group1")
                 .WithSimpleSchedule(x => x
-                    .WithIntervalInSeconds(60)
+                    .WithIntervalInMinutes(2)
                     .RepeatForever())
                 .Build();
 

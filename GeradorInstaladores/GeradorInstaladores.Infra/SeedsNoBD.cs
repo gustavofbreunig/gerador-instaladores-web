@@ -20,11 +20,11 @@ namespace GeradorInstaladores.Infra
 
                     db.ModelosEquipamentos.Add(new ModeloEquipamento()
                     {
-                        NomeModelo = "RICOH Aficio MP C2550",
+                        NomeModelo = "RICOH Aficio MP C2050",
                         PastaDriverX86 = "mpc2050_x86",
                         PastaDriverX64 = "mpc2050_x64",
                         ArquivoINF = "OEMSETUP.INF",
-                        NomeDriver = "RICOH Aficio MP C2550 PCL 5c"
+                        NomeDriver = "RICOH Aficio MP C2050 PCL 5c"
                     });
 
                     db.ModelosEquipamentos.Add(new ModeloEquipamento()
