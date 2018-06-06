@@ -10,16 +10,21 @@ namespace GeradorInstaladores.Infra
     [DisallowConcurrentExecution]
     public class JobCriaInstalador : IJob
     {
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         public Task Execute(IJobExecutionContext context)
         {
-            string PastaDrivers, PastaINNO, AppName;            
+            log.Info("JobCriaInstalador.Execute iniciado");
+
+            string PastaDrivers, PastaINNO, AppName;
 
             //busca instaladores não iniciados
             using (var db = new GeradorInstaladoresContext())
             {
                 if (db.DefinicoesGerais.Count() == 0)
                 {
-                    throw new Exception("Definicoes gerais não configuradas");
+                    log.Error("Definicoes gerais não configuradas");
+                    return Task.CompletedTask;
                 }
 
                 var definicoes_gerais = (from d in db.DefinicoesGerais
@@ -56,10 +61,51 @@ namespace GeradorInstaladores.Infra
             //compila um por um
             foreach (var instalador in instaladores_a_compilar)
             {
+                CriadorInstalador criador = new CriadorInstalador(instalador, PastaDrivers, PastaINNO, AppName);
 
+                criador.OnMensagemProgresso += Criador_OnMensagemProgresso;
+                criador.OnErro += Criador_OnErro;
+                criador.OnConclusao += Criador_OnConclusao;
             }
 
+            log.Info("JobCriaInstalador.Execute finalizado");
             return Task.CompletedTask;
+        }
+
+        private void Criador_OnConclusao(object sender, ProgressoEventArgs e)
+        {
+            using (var db = new GeradorInstaladoresContext())
+            {
+                var instalador = db.Instaladores.Find(e.IdInstalador);
+
+                instalador.Status = (int)StatusCompilacao.Terminado;
+                instalador.MensagensProgresso += Environment.NewLine + "Concluído!";
+                instalador.ArquivoInstalador = e.Mensagem;
+                db.SaveChanges();
+            }
+        }
+
+        private void Criador_OnErro(object sender, ProgressoEventArgs e)
+        {
+            using (var db = new GeradorInstaladoresContext())
+            {
+                var instalador = db.Instaladores.Find(e.IdInstalador);
+
+                instalador.Status = (int)StatusCompilacao.Erro;
+                instalador.MensagensProgresso += e.Mensagem;
+                db.SaveChanges();
+            }
+        }
+
+        private void Criador_OnMensagemProgresso(object sender, ProgressoEventArgs e)
+        {
+            using (var db = new GeradorInstaladoresContext())
+            {
+                var instalador = db.Instaladores.Find(e.IdInstalador);
+
+                instalador.MensagensProgresso += e.Mensagem;
+                db.SaveChanges();
+            }
         }
     }
 }
