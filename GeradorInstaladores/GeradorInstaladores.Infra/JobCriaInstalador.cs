@@ -14,61 +14,70 @@ namespace GeradorInstaladores.Infra
 
         public Task Execute(IJobExecutionContext context)
         {
-            log.Info("JobCriaInstalador.Execute iniciado");
-
-            string PastaDrivers, PastaINNO, AppName;
-
-            //busca instaladores não iniciados
-            using (var db = new GeradorInstaladoresContext())
+            try
             {
-                if (db.DefinicoesGerais.Count() == 0)
+                log.Info("JobCriaInstalador.Execute iniciado");
+
+                string PastaDrivers, PastaINNO, AppName;
+
+                //busca instaladores não iniciados
+                using (var db = new GeradorInstaladoresContext())
                 {
-                    log.Error("Definicoes gerais não configuradas");
-                    return Task.CompletedTask;
+                    if (db.DefinicoesGerais.Count() == 0)
+                    {
+                        log.Error("Definicoes gerais não configuradas");
+                        return Task.CompletedTask;
+                    }
+
+                    var definicoes_gerais = (from d in db.DefinicoesGerais
+                                             select d)
+                                            .First();
+
+                    PastaDrivers = definicoes_gerais.PastaDrivers;
+                    PastaINNO = definicoes_gerais.PastaINNO;
+                    AppName = definicoes_gerais.AppName;
+
+                    var instaladores = from i in db.Instaladores
+                                       where i.Status == (int)StatusCompilacao.NaoIniciado
+                                       select i;
+
+                    foreach (var instalador in instaladores)
+                    {
+                        instalador.Status = (int)StatusCompilacao.Compilando;
+                    }
+
+                    db.SaveChanges();
                 }
 
-                var definicoes_gerais = (from d in db.DefinicoesGerais
-                                         select d)
-                                        .First();
+                List<Instalador> instaladores_a_compilar;
 
-                PastaDrivers = definicoes_gerais.PastaDrivers;
-                PastaINNO = definicoes_gerais.PastaINNO;
-                AppName = definicoes_gerais.AppName;
-
-                var instaladores = from i in db.Instaladores
-                                   where i.Status == (int)StatusCompilacao.NaoIniciado
-                                   select i;
-
-                foreach (var instalador in instaladores)
+                //pega os instaladores a compilar
+                using (var db = new GeradorInstaladoresContext())
                 {
-                    instalador.Status = (int)StatusCompilacao.Compilando;
+                    instaladores_a_compilar = (from i in db.Instaladores
+                                               where i.Status == (int)StatusCompilacao.Compilando
+                                               select i)
+                                               .ToList();
                 }
 
-                db.SaveChanges();
+                //compila um por um
+                foreach (var instalador in instaladores_a_compilar)
+                {
+                    CriadorInstalador criador = new CriadorInstalador(instalador, PastaDrivers, PastaINNO, AppName);
+
+                    criador.OnMensagemProgresso += Criador_OnMensagemProgresso;
+                    criador.OnErro += Criador_OnErro;
+                    criador.OnConclusao += Criador_OnConclusao;
+                }
+
+                log.Info("JobCriaInstalador.Execute finalizado");               
             }
-
-            List<Instalador> instaladores_a_compilar;
-
-            //pega os instaladores a compilar
-            using (var db = new GeradorInstaladoresContext())
+            catch (Exception e)
             {
-                instaladores_a_compilar = (from i in db.Instaladores
-                                           where i.Status == (int)StatusCompilacao.Compilando
-                                           select i)
-                                           .ToList();
+                //loga o erro, não é possível exibir nenhuma mensagem ao user, já que este job roda no background
+                log.Error(e);
             }
 
-            //compila um por um
-            foreach (var instalador in instaladores_a_compilar)
-            {
-                CriadorInstalador criador = new CriadorInstalador(instalador, PastaDrivers, PastaINNO, AppName);
-
-                criador.OnMensagemProgresso += Criador_OnMensagemProgresso;
-                criador.OnErro += Criador_OnErro;
-                criador.OnConclusao += Criador_OnConclusao;
-            }
-
-            log.Info("JobCriaInstalador.Execute finalizado");
             return Task.CompletedTask;
         }
 
