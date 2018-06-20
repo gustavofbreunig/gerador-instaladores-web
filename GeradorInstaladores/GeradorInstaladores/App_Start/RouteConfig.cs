@@ -16,7 +16,7 @@ namespace GeradorInstaladores
             routes.MapRoute(
                 name: "DownloadRoute",
                 url: "Download/{IdInstalador}",
-                defaults: new { controller = "Home", action = "DownloadInstalador" }
+                defaults: new { controller = "Home", action = "Download" }
             );
 
             routes.MapRoute(

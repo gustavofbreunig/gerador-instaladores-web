@@ -36,8 +36,9 @@ namespace GeradorInstaladores.Controllers
             return View();
         }
 
-        public ActionResult DownloadInstalador(int IdInstalador)
+        public ActionResult Download(int IdInstalador)
         {
+            ViewBag.IdInstalador = IdInstalador;
             return View();
         }
 

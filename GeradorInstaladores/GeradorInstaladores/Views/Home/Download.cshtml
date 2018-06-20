@@ -1,0 +1,22 @@
+﻿@{
+    ViewBag.Title = "Download do Instalador";
+}
+<input type="hidden" id="IdInstalador" value="@ViewBag.IdInstalador" />
+
+<div class="row">
+    <div id="imgDownload" class="offset-5">
+        <img src="~/Content/loading.gif" alt="Carregando...">
+    </div>
+    <a id="lnkDownload" href="~/DownloadBin/@ViewBag.IdInstalador">Clique aqui para baixar o instalador</a>
+</div>
+
+<div class="row" style="margin-top: 20px;">
+    <div class="col-9 offset-1">
+        <div class="card">
+            <div class="card-body">
+                <h5>Detalhes:</h5>
+                This is some text within a card body.his is some text within a card body.his is some text within a card body.his is some text within a card body.his is some text within a card body.his is some text within a card body.
+            </div>
+        </div>
+    </div>
+</div>
