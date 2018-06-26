@@ -14,7 +14,6 @@ namespace GeradorInstaladores
 {
     public class MvcApplication : System.Web.HttpApplication
     {
-        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         private void ConfiguraQuartz()
         {
@@ -25,7 +24,7 @@ namespace GeradorInstaladores
             ITrigger trigger = TriggerBuilder.Create()
                 .WithIdentity("myTrigger", "group1")
                 .WithSimpleSchedule(x => x
-                    .WithIntervalInMinutes(2)
+                    .WithIntervalInSeconds(30)
                     .RepeatForever()
                     )
                 .Build();
@@ -42,10 +41,9 @@ namespace GeradorInstaladores
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
-            log.Info("Configurando Quartz");
+
             ConfiguraQuartz();
 
-            log.Info("Configurando SQLITE");
             SeedsNoBD.FazSeedSQLite();
         }
     }

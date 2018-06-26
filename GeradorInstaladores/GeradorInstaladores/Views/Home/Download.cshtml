@@ -3,20 +3,28 @@
 }
 <input type="hidden" id="IdInstalador" value="@ViewBag.IdInstalador" />
 
-<div class="row">
-    <div id="imgDownload" class="offset-5">
+<div class="row offset-5">
+    <div id="imgDownload">
         <img src="~/Content/loading.gif" alt="Carregando...">
     </div>
-    <a id="lnkDownload" href="~/DownloadBin/@ViewBag.IdInstalador">Clique aqui para baixar o instalador</a>
-</div>
-
-<div class="row" style="margin-top: 20px;">
-    <div class="col-9 offset-1">
-        <div class="card">
-            <div class="card-body">
-                <h5>Detalhes:</h5>
-                This is some text within a card body.his is some text within a card body.his is some text within a card body.his is some text within a card body.his is some text within a card body.his is some text within a card body.
-            </div>
-        </div>
+    <div id="lnkDownload" class="alert alert-success" role="alert">
+        <a href="~/DownloadBin/@ViewBag.IdInstalador">Clique aqui para baixar o instalador</a>
+    </div>
+    <div id="msgErro" class="alert alert-danger" role="alert">
+        Erro, verifique o log abaixo
     </div>
 </div>
+
+<hr />
+
+<div class="row offset-1 form-group">
+    <div>
+        <label for="txtMensagensProgresso">Detalhes:</label>
+        <div class="alert alert-light" role="alert" id="txtMensagensProgresso">
+        </div>
+</div>
+
+@section Scripts
+{
+    <script src="@Url.Content("~/Scripts/jsDownload.js")"></script>
+}

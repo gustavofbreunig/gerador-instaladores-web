@@ -37,6 +37,10 @@ namespace GeradorInstaladores.Infra
                     PastaINNO = definicoes_gerais.PastaINNO;
                     AppName = definicoes_gerais.AppName;
 
+                    log.Info("PastaDrivers: " + PastaDrivers);
+                    log.Info("PastaINNO: " + PastaINNO);
+                    log.Info("AppName: " + AppName);
+
                     var instaladores = from i in db.Instaladores
                                        where i.Status == (int)StatusCompilacao.NaoIniciado
                                        select i;
@@ -49,15 +53,19 @@ namespace GeradorInstaladores.Infra
                     db.SaveChanges();
                 }
 
-                List<Instalador> instaladores_a_compilar;
+                Instalador[] instaladores_a_compilar;
 
-                //pega os instaladores a compilar
                 using (var db = new GeradorInstaladoresContext())
                 {
-                    instaladores_a_compilar = (from i in db.Instaladores
-                                               where i.Status == (int)StatusCompilacao.Compilando
-                                               select i)
-                                               .ToList();
+                    //desabilita proxy pois os dados serão utilizados com a conexão fechada
+                    db.Configuration.ProxyCreationEnabled = false;
+
+                    instaladores_a_compilar =
+                        db.Instaladores
+                        .Include("Equipamentos")
+                        .Include("Equipamentos.ModeloEquipamento")
+                        .Where(p => p.Status == (int)StatusCompilacao.Compilando)
+                        .ToArray();
                 }
 
                 //compila um por um
@@ -68,9 +76,11 @@ namespace GeradorInstaladores.Infra
                     criador.OnMensagemProgresso += Criador_OnMensagemProgresso;
                     criador.OnErro += Criador_OnErro;
                     criador.OnConclusao += Criador_OnConclusao;
+
+                    criador.CriaInstaladorINNO();
                 }
 
-                log.Info("JobCriaInstalador.Execute finalizado");               
+                log.Info("JobCriaInstalador.Execute finalizado");
             }
             catch (Exception e)
             {
@@ -88,7 +98,7 @@ namespace GeradorInstaladores.Infra
                 var instalador = db.Instaladores.Find(e.IdInstalador);
 
                 instalador.Status = (int)StatusCompilacao.Terminado;
-                instalador.MensagensProgresso += Environment.NewLine + "Concluído!";
+                instalador.MensagensProgresso += "Concluído!";
                 instalador.ArquivoInstalador = e.Mensagem;
                 db.SaveChanges();
             }
@@ -101,7 +111,7 @@ namespace GeradorInstaladores.Infra
                 var instalador = db.Instaladores.Find(e.IdInstalador);
 
                 instalador.Status = (int)StatusCompilacao.Erro;
-                instalador.MensagensProgresso += e.Mensagem;
+                instalador.MensagensProgresso += e.Mensagem + "\r\n";
                 db.SaveChanges();
             }
         }
@@ -112,7 +122,7 @@ namespace GeradorInstaladores.Infra
             {
                 var instalador = db.Instaladores.Find(e.IdInstalador);
 
-                instalador.MensagensProgresso += e.Mensagem;
+                instalador.MensagensProgresso += e.Mensagem + "\r\n";
                 db.SaveChanges();
             }
         }

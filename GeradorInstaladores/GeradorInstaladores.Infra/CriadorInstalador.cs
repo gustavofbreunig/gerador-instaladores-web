@@ -431,6 +431,7 @@ namespace GeradorInstaladores.Infra
                 pProcess.StartInfo.RedirectStandardError = true;
                 pProcess.StartInfo.WorkingDirectory = _pastaDrivers;
                 pProcess.Start();
+
                 string strOutput = pProcess.StandardOutput.ReadToEnd();
                 string strErrorOutput = pProcess.StandardError.ReadToEnd();
 
@@ -454,7 +455,7 @@ namespace GeradorInstaladores.Infra
                 {
                     OnErro(
                         this,
-                        new ProgressoEventArgs(_instalador.Id, e.Message + "\r\n" + e.StackTrace)
+                        new ProgressoEventArgs(_instalador.Id, e.GetType().ToString() + ":" + e.Message + "\r\n" + e.StackTrace)
                         );
                 }
             }

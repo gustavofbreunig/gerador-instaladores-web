@@ -43,6 +43,19 @@ namespace GeradorInstaladores.Controllers
         }
 
         [HttpGet]
+        public JsonResult ObterStatusInstalador(int IdInstalador)
+        {
+            using (var db = new GeradorInstaladoresContext())
+            {
+                Instalador i = db.Instaladores.Find(IdInstalador);
+
+                string status = Enum.GetName(typeof(StatusCompilacao), i.Status);
+
+                return Json(new { Status = status, Mensagens = i.MensagensProgresso }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet]
         public JsonResult ObterModelos()
         {
             var modelosview = new List<ModelModeloComId>();
