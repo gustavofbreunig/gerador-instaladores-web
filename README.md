@@ -1,5 +1,11 @@
 # README #
 
+This application generate autonomous installers for any printer. Works on win7+
+
+It is currently working on my employer.
+
 ### TODO ###
 
-* Passar quartz.net para console application com uma saída do log4net para o console
+* pagina download bin
+* explanation gif
+* this readme

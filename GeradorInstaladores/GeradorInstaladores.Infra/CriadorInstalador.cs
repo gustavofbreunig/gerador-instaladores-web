@@ -250,7 +250,7 @@ namespace GeradorInstaladores.Infra
                     sb.AppendFormat("AppName={0}\r\n", _AppName);
                     sb.AppendLine("AppVersion=1.0");
                     sb.AppendLine("CreateAppDir=no");
-                    //sb.AppendFormat("OutputBaseFilename={0}\r\n", _arquivoSaida);
+                    //sb.AppendFormat("OutputBaseFilename={0}\r\n", _arquivoSaida); esse parâmetro é passado ao INNO Compiler
                     sb.AppendFormat("InfoBeforeFile={0}\r\n", _resumoTXT);
                     sb.AppendLine("Compression=lzma2");
                     sb.AppendLine("SolidCompression=yes");
@@ -284,9 +284,10 @@ namespace GeradorInstaladores.Infra
                         sb.AppendFormat("Source: \"{0}\\*\"; DestDir: {{tmp}}\\{0}; Flags: recursesubdirs createallsubdirs deleteafterinstall\r\n", modelo.PastaDriverX86);
                     }
 
+                    sb.AppendLine();
                     sb.AppendLine("[Run]");
-                    sb.AppendFormat("Filename: {{tmp}}\\{0}; Check: not IsWin64 \r\n", _instaladorBATx64);
-                    sb.AppendFormat("Filename: {{tmp}}\\{0}; Check: IsWin64 \r\n", _instaladorBATx86);
+                    sb.AppendFormat("Filename: {{tmp}}\\{0}; Check: IsWin64 \r\n", _instaladorBATx64);
+                    sb.AppendFormat("Filename: {{tmp}}\\{0}; Check: not IsWin64 \r\n", _instaladorBATx86);
 
                     //default encoding para ser suportado pelo INNO, unicode não suportas
                     byte[] textoBytes = Encoding.Default.GetBytes(sb.ToString());

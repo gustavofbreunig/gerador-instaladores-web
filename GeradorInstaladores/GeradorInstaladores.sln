@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeradorInstaladores.Infra",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeradorInstaladores.Testes", "GeradorInstaladores.Testes\GeradorInstaladores.Testes.csproj", "{1EC355CE-F7B4-4168-A1C7-6907A3D14DB5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeradorInstaladores.ConsoleCriadorInstaladores", "GeradorInstaladores.ConsoleCriadorInstaladores\GeradorInstaladores.ConsoleCriadorInstaladores.csproj", "{B883DB47-604F-48F5-BD0C-9F027C44CB86}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{1EC355CE-F7B4-4168-A1C7-6907A3D14DB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1EC355CE-F7B4-4168-A1C7-6907A3D14DB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1EC355CE-F7B4-4168-A1C7-6907A3D14DB5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B883DB47-604F-48F5-BD0C-9F027C44CB86}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B883DB47-604F-48F5-BD0C-9F027C44CB86}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B883DB47-604F-48F5-BD0C-9F027C44CB86}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B883DB47-604F-48F5-BD0C-9F027C44CB86}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

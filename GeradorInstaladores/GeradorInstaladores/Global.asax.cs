@@ -14,37 +14,12 @@ namespace GeradorInstaladores
 {
     public class MvcApplication : System.Web.HttpApplication
     {
-
-        private void ConfiguraQuartz()
-        {
-            IJobDetail job = JobBuilder.Create<JobCriaInstalador>()
-                .WithIdentity("JobCriaInstalador", "group1") // name "myJob", group "group1"
-                .Build();
-
-            ITrigger trigger = TriggerBuilder.Create()
-                .WithIdentity("myTrigger", "group1")
-                .WithSimpleSchedule(x => x
-                    .WithIntervalInSeconds(30)
-                    .RepeatForever()
-                    )
-                .Build();
-
-            IScheduler scheduler = StdSchedulerFactory.GetDefaultScheduler().Result;
-            scheduler.ScheduleJob(job, trigger);
-            scheduler.Start();
-        }
-
         protected void Application_Start()
         {
             AreaRegistration.RegisterAllAreas();
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
-            BundleConfig.RegisterBundles(BundleTable.Bundles);
-
-
-            ConfiguraQuartz();
-
-            SeedsNoBD.FazSeedSQLite();
+            BundleConfig.RegisterBundles(BundleTable.Bundles);            
         }
     }
 }
