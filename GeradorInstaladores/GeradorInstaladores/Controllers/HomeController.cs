@@ -6,6 +6,7 @@ using System.Web.Mvc;
 using GeradorInstaladores.Infra;
 using Quartz;
 using Quartz.Impl;
+using System.IO;
 
 namespace GeradorInstaladores.Controllers
 {
@@ -36,10 +37,26 @@ namespace GeradorInstaladores.Controllers
             return View();
         }
 
+        [HttpGet]
         public ActionResult Download(int IdInstalador)
         {
             ViewBag.IdInstalador = IdInstalador;
             return View();
+        }
+
+        public ActionResult DownloadBin(string id)
+        {
+            ObterExeInstalador obterExe = new ObterExeInstalador(Int32.Parse(id));
+            FileInfo f = obterExe.RetornaArquivo();
+
+            //response sem colocar todo arquivo em memória
+            Response.Clear();
+            Response.ContentType = System.Net.Mime.MediaTypeNames.Application.Octet;
+            Response.AppendHeader("Content-Disposition", "filename=" + f.Name);
+            Response.TransmitFile(f.FullName);
+            Response.End();
+
+            return RedirectToAction("Download", new { IdInstalador = Int32.Parse(id) });
         }
 
         [HttpGet]
