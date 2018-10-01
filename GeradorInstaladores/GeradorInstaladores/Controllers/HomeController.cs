@@ -38,15 +38,15 @@ namespace GeradorInstaladores.Controllers
         }
 
         [HttpGet]
-        public ActionResult Download(int IdInstalador)
+        public ActionResult Download(string IdInstalador)
         {
             ViewBag.IdInstalador = IdInstalador;
             return View();
         }
 
-        public ActionResult DownloadBin(string id)
+        public ActionResult DownloadBin(string UnicoId)
         {
-            ObterExeInstalador obterExe = new ObterExeInstalador(Int32.Parse(id));
+            ObterExeInstalador obterExe = new ObterExeInstalador(UnicoId);
             FileInfo f = obterExe.RetornaArquivo();
 
             //response sem colocar todo arquivo em memória
@@ -56,15 +56,17 @@ namespace GeradorInstaladores.Controllers
             Response.TransmitFile(f.FullName);
             Response.End();
 
-            return RedirectToAction("Download", new { IdInstalador = Int32.Parse(id) });
+            return RedirectToAction("Download", new { IdInstalador = UnicoId });
         }
 
         [HttpGet]
-        public JsonResult ObterStatusInstalador(int IdInstalador)
+        public JsonResult ObterStatusInstalador(string UnicoId)
         {
             using (var db = new GeradorInstaladoresContext())
             {
-                Instalador i = db.Instaladores.Find(IdInstalador);
+                Instalador i = db.Instaladores
+                    .Where(p => p.IdentificadorUnico == UnicoId)
+                    .FirstOrDefault();
 
                 string status = Enum.GetName(typeof(StatusCompilacao), i.Status);
 
@@ -104,7 +106,7 @@ namespace GeradorInstaladores.Controllers
         [HttpPost]
         public JsonResult RequisitaInstalador(ModelRequisicaoInstalador dadosInstalador)
         {
-            int IdInstaladorGerado = 0;
+            string IdUnicoGerado = Guid.NewGuid().ToString();
 
             //registra o instalador no banco de dados
             using (var db = new GeradorInstaladoresContext())
@@ -112,6 +114,7 @@ namespace GeradorInstaladores.Controllers
                 var instalador = new Instalador()
                 {
                     Nome = dadosInstalador.Nome,
+                    IdentificadorUnico = IdUnicoGerado,
                     Status = (int)StatusCompilacao.NaoIniciado
                 };
 
@@ -133,13 +136,10 @@ namespace GeradorInstaladores.Controllers
                 var novoInstaladorGerado = db.Instaladores.Add(instalador);
 
                 db.SaveChanges();
-
-                //aqui a entidade já tem o identificador
-                IdInstaladorGerado = novoInstaladorGerado.Id;
             }
            
             //responde com o id unico gerado
-            return Json(IdInstaladorGerado);
+            return Json(IdUnicoGerado);
         }
 
     }

@@ -12,7 +12,7 @@ namespace GeradorInstaladores.Infra
         private string _PastaDosExecutaveis;
         private string _NomeInstalador;
 
-        public ObterExeInstalador(int IdInstalador)
+        public ObterExeInstalador(string IdInstalador)
         {
             using (var db = new GeradorInstaladoresContext())
             {
@@ -21,7 +21,10 @@ namespace GeradorInstaladores.Infra
                                         .First();
 
                 this._PastaDosExecutaveis = Path.Combine(definicoes_gerais.PastaDrivers, "Output");
-                this._NomeInstalador = db.Instaladores.Find(IdInstalador).ArquivoInstalador;
+                this._NomeInstalador = db.Instaladores
+                    .Where(p => p.IdentificadorUnico == IdInstalador)
+                    .First()
+                    .ArquivoInstalador;
             }
         }
 

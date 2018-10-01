@@ -8,7 +8,7 @@ function AtualizaLinkDownloadEMensagens()
 
     $.ajax({
         method: 'GET',
-        data: { IdInstalador: idInstalador },
+        data: { UnicoId: idInstalador },
         url: '/Home/ObterStatusInstalador',
         success: function (result) {
             if (result.Status == "NaoIniciado" || result.Status == "Compilando")

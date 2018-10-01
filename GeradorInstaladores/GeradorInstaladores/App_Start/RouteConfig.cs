@@ -14,6 +14,12 @@ namespace GeradorInstaladores
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
             routes.MapRoute(
+                name: "DownloadBinRoute",
+                url: "DownloadBin/{UnicoId}",
+                defaults: new { controller = "Home", action = "DownloadBin" }
+            );
+
+            routes.MapRoute(
                 name: "DownloadRoute",
                 url: "Download/{IdInstalador}",
                 defaults: new { controller = "Home", action = "Download" }

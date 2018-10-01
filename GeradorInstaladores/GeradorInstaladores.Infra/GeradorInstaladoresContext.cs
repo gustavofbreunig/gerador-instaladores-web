@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
@@ -62,6 +63,12 @@ namespace GeradorInstaladores.Infra
 
         [Required]
         public string Nome { get; set; }
+
+        /// <summary>
+        /// Identificador único para download.
+        /// </summary>
+        [Required]
+        public string IdentificadorUnico { get; set; }
 
         /// <summary>
         /// Nome do arquivo instalador (.exe), depois de compilado.
