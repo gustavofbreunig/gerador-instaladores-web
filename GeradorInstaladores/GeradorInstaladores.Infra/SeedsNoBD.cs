@@ -54,7 +54,9 @@ namespace GeradorInstaladores.Infra
                     {
                         PastaDrivers = @"D:\temp\instaladorImpressoras",
                         PastaINNO = @"C:\Program Files (x86)\Inno Setup 5",
-                        AppName = @"AppName"
+                        Icone = @"C:\temp\printer.ico",
+                        AppName = @"AppName",
+                        TextoCabecalho = @"Company Name"
                     });
                 }
 

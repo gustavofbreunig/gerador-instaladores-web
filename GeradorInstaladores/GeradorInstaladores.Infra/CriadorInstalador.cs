@@ -16,9 +16,26 @@ namespace GeradorInstaladores.Infra
         private string _pastaDrivers { get; set; }
         private string _pastaINNO { get; set; }
         private string _AppName { get; set; }
+        private string _TextoCabecalho { get; set; }
+        private string _Icone { get; set; }
         private Instalador _instalador { get; set; }
-
         private string sufixoArquivos = Guid.NewGuid().ToString().Substring(0, 4);
+
+        public CriadorInstalador(
+            Instalador instalador,
+            string pastaDrivers,
+            string pastaINNO,
+            string AppName,
+            string TextoCabecalho,
+            string Icone)
+        {
+            _instalador = instalador;
+            _pastaINNO = pastaINNO;
+            _pastaDrivers = pastaDrivers;
+            _AppName = AppName;
+            _TextoCabecalho = TextoCabecalho;
+            _Icone = Icone;
+        }
 
         /// <summary>
         /// Arquivo (.bat) com os instaladores impressoras versão x86
@@ -196,9 +213,10 @@ namespace GeradorInstaladores.Infra
                 {
                     StringBuilder sb = new StringBuilder();
 
-                    sb.AppendLine(_instalador.Nome);
+                    sb.AppendLine(_TextoCabecalho);
                     sb.AppendLine();
-                    sb.AppendLine("Lista de equipamentos:");
+                    sb.AppendLine();
+                    sb.AppendLine("Olá " + _instalador.Nome + ", os seguintes equipamentos serão instalados:");
                     sb.AppendLine();
 
                     foreach (var equipamento in _instalador.Equipamentos)
@@ -253,6 +271,7 @@ namespace GeradorInstaladores.Infra
                     //sb.AppendFormat("OutputBaseFilename={0}\r\n", _arquivoSaida); esse parâmetro é passado ao INNO Compiler
                     sb.AppendFormat("InfoBeforeFile={0}\r\n", _resumoTXT);
                     sb.AppendLine("Compression=lzma2");
+                    sb.AppendLine("SetupIconFile=" + _Icone);
                     sb.AppendLine("SolidCompression=yes");
                     sb.AppendLine("Uninstallable=no");
 
@@ -356,18 +375,6 @@ namespace GeradorInstaladores.Infra
         /// Ocorre quando o instalador é criado com sucesso.
         /// </summary>
         public event AtualizaStatusHandler OnConclusao;
-
-        public CriadorInstalador(
-            Instalador instalador,
-            string pastaDrivers,
-            string pastaINNO,
-            string AppName)
-        {
-            _instalador = instalador;
-            _pastaINNO = pastaINNO;
-            _pastaDrivers = pastaDrivers;
-            _AppName = AppName;
-        }
 
         public void CriaInstaladorINNO()
         {

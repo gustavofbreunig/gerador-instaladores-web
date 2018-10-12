@@ -48,11 +48,23 @@ namespace GeradorInstaladores.Infra
         public string PastaINNO { get; set; }
 
         /// <summary>
+        /// Icone .ico para o instalador, caminho completo
+        /// </summary>
+        [Required]
+        public string Icone { get; set; }
+
+        /// <summary>
         /// Configuração AppName do INNO.
         /// http://www.jrsoftware.org/ishelp/index.php?topic=setup_appname
         /// </summary>
         [Required]
         public string AppName { get; set; }
+
+        /// <summary>
+        /// Um texto que fica na primeira página do instalador
+        /// </summary>
+        [Required]
+        public string TextoCabecalho { get; set; }
     }
 
     [Table("Instaladores")]

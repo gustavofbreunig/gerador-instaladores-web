@@ -76,7 +76,9 @@ namespace GeradorInstaladores.Testes
                 new CriadorInstalador(_instalador,
                 @"D:\temp\instaladorImpressoras",
                 @"C:\Program Files (x86)\Inno Setup 5",
-                @"Teste"
+                @"Teste",
+                @"Nome da empresa",
+                @"C:\temp\printer.ico"
                 );
             
             criador.OnMensagemProgresso += Criador_OnMensagemProgresso;

@@ -20,7 +20,7 @@ namespace GeradorInstaladores.Infra
 
                 log.Info("JobCriaInstalador.Execute iniciado");
 
-                string PastaDrivers, PastaINNO, AppName;
+                string PastaDrivers, PastaINNO, AppName, TextoCabecalho, CaminhoIcone;
 
                 //busca instaladores não iniciados
                 using (var db = new GeradorInstaladoresContext())
@@ -38,6 +38,8 @@ namespace GeradorInstaladores.Infra
                     PastaDrivers = definicoes_gerais.PastaDrivers;
                     PastaINNO = definicoes_gerais.PastaINNO;
                     AppName = definicoes_gerais.AppName;
+                    TextoCabecalho = definicoes_gerais.TextoCabecalho;
+                    CaminhoIcone = definicoes_gerais.Icone;
 
                     log.Info("PastaDrivers: " + PastaDrivers);
                     log.Info("PastaINNO: " + PastaINNO);
@@ -75,7 +77,7 @@ namespace GeradorInstaladores.Infra
                 log.Info("Instaladores a compilar: " + instaladores_a_compilar.Count().ToString());
                 foreach (var instalador in instaladores_a_compilar)
                 {
-                    CriadorInstalador criador = new CriadorInstalador(instalador, PastaDrivers, PastaINNO, AppName);
+                    CriadorInstalador criador = new CriadorInstalador(instalador, PastaDrivers, PastaINNO, AppName, TextoCabecalho, CaminhoIcone);
 
                     criador.OnMensagemProgresso += Criador_OnMensagemProgresso;
                     criador.OnErro += Criador_OnErro;
